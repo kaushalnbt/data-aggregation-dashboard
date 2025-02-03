@@ -3,13 +3,20 @@ import axios from "axios";
 
 function App() {
   const [data, setData] = useState(null);
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   const fetchData = async () => {
     try {
+      setLoading(true);
       const response = await axios.get("http://localhost:5000/dashboard");
       setData(response.data);
+      setError(null); // Clear previous errors
     } catch (error) {
-      console.error("Error fetching data", error);
+      setError("Error fetching data");
+      setData(null); // Clear data if error occurs
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -29,35 +36,42 @@ function App() {
           Refresh Data
         </button>
 
-        {data ? (
-          <>
-            <div className="space-y-6">
-              {/* Weather Section */}
-              <div className="bg-blue-100 p-4 rounded-lg shadow-md">
-                <h2 className="text-xl font-semibold text-blue-700">🌤 Weather</h2>
-                <p className="text-lg mt-2">Temperature: <span className="font-medium">{data.weather}</span></p>
-              </div>
-
-              {/* Cryptocurrency Section */}
-              <div className="bg-green-100 p-4 rounded-lg shadow-md">
-                <h2 className="text-xl font-semibold text-green-700">💰 Cryptocurrency</h2>
-                <p className="text-lg mt-2">Bitcoin: <span className="font-medium">${data.crypto.bitcoin.usd}</span></p>
-                <p className="text-lg mt-2">Ethereum: <span className="font-medium">${data.crypto.ethereum.usd}</span></p>
-              </div>
-
-              {/* News Section */}
-              <div className="bg-yellow-100 p-4 rounded-lg shadow-md">
-                <h2 className="text-xl font-semibold text-yellow-700">📰 News</h2>
-                <ul className="space-y-3 mt-2">
-                  {data.news.map((article, i) => (
-                    <li key={i} className="text-md font-medium text-gray-800">{article.title}</li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-          </>
-        ) : (
+        {loading ? (
           <p className="text-center text-lg font-semibold text-gray-600">Loading data...</p>
+        ) : error ? (
+          <p className="text-center text-lg font-semibold text-red-600">{error}</p>
+        ) : (
+          <div className="space-y-6">
+            {/* Weather Section */}
+            <div className="bg-blue-100 p-4 rounded-lg shadow-md">
+              <h2 className="text-xl font-semibold text-blue-700">🌤 Weather</h2>
+              <p className="text-lg mt-2">Condition: <span className="font-medium">{data.weather}</span></p>
+            </div>
+
+            {/* Cryptocurrency Section */}
+            <div className="bg-green-100 p-4 rounded-lg shadow-md">
+              <h2 className="text-xl font-semibold text-green-700">💰 Cryptocurrency</h2>
+              <p className="text-lg mt-2">Bitcoin: <span className="font-medium">${data.crypto.bitcoin.usd}</span></p>
+              <p className="text-lg mt-2">Ethereum: <span className="font-medium">${data.crypto.ethereum.usd}</span></p>
+            </div>
+
+            {/* News Section */}
+            <div className="bg-yellow-100 p-4 rounded-lg shadow-md">
+              <h2 className="text-xl font-semibold text-yellow-700">📰 News</h2>
+              <ul className="space-y-3 mt-2">
+                {data.news.map((article, i) => (
+                  <li key={i} className="text-md font-medium text-gray-800">{article.title}</li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Joke Section */}
+            <div className="bg-purple-100 p-4 rounded-lg shadow-md">
+              <h2 className="text-xl font-semibold text-purple-700">😂 Joke</h2>
+              <p className="text-lg mt-2">{data.joke.setup}</p>
+              <p className="text-lg mt-2 font-bold">{data.joke.punchline}</p>
+            </div>
+          </div>
         )}
       </div>
     </div>
